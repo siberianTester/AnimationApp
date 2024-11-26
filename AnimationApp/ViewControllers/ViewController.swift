@@ -10,60 +10,30 @@ import SpringAnimation
 
 final class ViewController: UIViewController {
     
+    // MARK: - IB Outlets
     @IBOutlet var animationView: SpringView!
-    
-    @IBOutlet var presetLabel: UILabel!
-    @IBOutlet var curveLabel: UILabel!
-    @IBOutlet var forceLabel: UILabel!
-    @IBOutlet var durationLabel: UILabel!
-    @IBOutlet var delayLabel: UILabel!
-    
-    private var isFirstRun = true
-    private var currentPreset = ""
-    private var nextPreset = ""
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        currentPreset = getRandomPreset()
-        nextPreset = getRandomPreset()
-        
-        setAnimationLabels()
+    @IBOutlet var animationLabel: SpringLabel! {
+        didSet {
+            animationLabel.text = animation.description
+        }
     }
     
-    @IBAction func runAnimation(_ sender: SpringButton) {
-        animationView.animation = isFirstRun ? currentPreset : nextPreset
-        animationView.curve = curveLabel.text ?? "easeIn"
-        animationView.force = Double(forceLabel.text ?? "1.0") ?? 1.0
-        animationView.duration = Double(durationLabel.text ?? "1.0") ?? 1.0
-        animationView.delay = Double(delayLabel.text ?? "0.0") ?? 0.0
+    // MARK: - Private properties
+    private var animation = Animation.randomAnimation
+    
+    // MARK: - IB Actions
+    @IBAction func runAnimation(_ sender: UIButton) {
+        animationLabel.text = animation.description
+        
+        animationView.animation = animation.name
+        animationView.curve = animation.curve
+        animationView.duration = animation.duration
+        animationView.force = animation.force
+        animationView.delay = animation.delay
         animationView.animate()
         
-        if !isFirstRun {
-            currentPreset = nextPreset
-            setAnimationLabels()
-        }
-        
-        nextPreset = getRandomPreset()
-        sender.setTitle("Run \(nextPreset)", for: .normal)
-        
-        isFirstRun = false
-    }
-    
-    private func getRandomPreset() -> String {
-        AnimationPreset.allCases.randomElement()?.rawValue ?? "pop"
-    }
-    
-    private func getRandomCurve() -> String {
-        AnimationCurve.allCases.randomElement()?.rawValue ?? "easeIn"
-    }
-    
-    private func setAnimationLabels() {
-        presetLabel.text = currentPreset
-        curveLabel.text = getRandomCurve()
-        forceLabel.text = String(format: "%.2f", Double.random(in: 1...4))
-        durationLabel.text = String(format: "%.2f", Double.random(in: 0.5...4))
-        delayLabel.text = String(format: "%.2f", Double.random(in: 0...2))
+        animation = Animation.randomAnimation
+        sender.setTitle("Run \(animation.name)", for: .normal)
     }
 }
 
